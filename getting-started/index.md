@@ -84,11 +84,18 @@ $ podman top <container_id>
 ### Checkpointing the container
 Checkpointing a container stops the container while writing the state of all processes in the container to disk.
 With this a container can later be restored and continue running at exactly the same point in time as the
-checkpoint. This capability requires CRIU 3.11 or later installed on the system.  It also requires executing
-podman as the superuser.
+checkpoint. This capability requires CRIU 3.11 or later installed on the system.  
+
+***Note:*** Checkpointing requires superuser access, and those containers are completely separate from
+any run by a user.
 
 To checkpoint the container use:
 ```console
+$ sudo podman run -dt -p 8080:8080/tcp -e HTTPD_VAR_RUN=/var/run/httpd -e HTTPD_MAIN_CONF_D_PATH=/etc/httpd/conf.d \
+                  -e HTTPD_MAIN_CONF_PATH=/etc/httpd/conf \
+                  -e HTTPD_CONTAINER_SCRIPTS_PATH=/usr/share/container-scripts/httpd/ \
+                  registry.fedoraproject.org/f29/httpd /usr/bin/run-httpd
+
 $ sudo podman container checkpoint <container_id>
 ```
 
@@ -134,7 +141,7 @@ To stop the last container run:
 $ podman stop --latest
 ```
 
-or if the container was executed as the superuser:
+and for containers executed as root:
 
 
 ```console
@@ -145,20 +152,17 @@ You can also check the status of one or more containers using the *ps* subcomman
 use the *-a* argument to list all containers.
 ```console
 $ podman ps -a
-```
-
-or containers executed as the superuser:
-
-```console
 $ sudo podman ps -a
 ```
 
 ### Removing the container
-To remove the httpd container:
+
+To remove the httpd containers:
 ```console
-podman rm --latest
+$ podman rm --latest
+$ sudo podman rm --latest
 ```
-You can verify the deletion of the container by running *podman ps -a*.
+You can verify the deletion of the container by running `podman ps -a` and `sudo podman ps -a`.
 
 ## Integration Tests
 For more information on how to setup and run the integration tests in your environment, checkout the Integration Tests [README.md](https://github.com/containers/libpod/blob/master/test/README.md)
